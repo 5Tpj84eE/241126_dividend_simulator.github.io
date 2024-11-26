@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>配当シミュレータ</title>
+  <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+  <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+  <style>
+    body, html {
+      height: 100%;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #F2F2F2;
+    }
+
+    .container {
+      max-width: 500px;
+      width: 100%;
+      padding: 100%;
+      padding: 20px;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .mdl-textfield {
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
+    .input-label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    #result, #totalStockPrice, #offsetPrice, #maxShares {
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+
+    #result {
+      color: #4CAF50;
+    }
+
+    #offsetPrice {
+      color: #FF5722;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        margin: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container mdl-card mdl-shadow--2dp">
+    <h4 class="mdl-typography--headline">配当シミュレータ</h4>
+
+    <!-- 買付可能額入力 -->
+    <label class="input-label" for="budget">買付可能額</label>
+    <div class="mdl-textfield mdl-js-textfield">
+      <input class="mdl-textfield__input" type="number" id="budget" required>
+      <label class="mdl-textfield__label" for="budget">買付可能額を入力...</label>
+    </div>
+
+    <!-- 株価入力 -->
+    <label class="input-label" for="stockPrice">株価</label>
+    <div class="mdl-textfield mdl-js-textfield">
+      <input class="mdl-textfield__input" type="number" id="stockPrice" required>
+      <label class="mdl-textfield__label" for="stockPrice">株価を入力...</label>
+    </div>
+
+    <!-- 何口購入するか入力 -->
+    <label class="input-label" for="shares">購入口数</label>
+    <div class="mdl-textfield mdl-js-textfield">
+      <input class="mdl-textfield__input" type="number" id="shares" required>
+      <label class="mdl-textfield__label" for="shares">何口購入するか入力...</label>
+    </div>
+
+    <!-- 配当利率入力 -->
+    <label class="input-label" for="dividendRate">配当利率 (%)</label>
+    <div class="mdl-textfield mdl-js-textfield">
+      <input class="mdl-textfield__input" type="number" id="dividendRate" required>
+      <label class="mdl-textfield__label" for="dividendRate">配当利率を入力 (%)...</label>
+    </div>
+
+    <!-- 購入株価合計表示 -->
+    <div id="totalStockPrice"></div>
+
+    <!-- 配当金額表示 -->
+    <div id="result"></div>
+
+    <!-- 株価の値下がり表示 -->
+    <div id="offsetPrice"></div>
+
+    <!-- 最大購入口数表示 -->
+    <div id="maxShares"></div>
+  </div>
+
+  <script>
+    // 入力フィールドの値が変更されるたびに自動計算
+    const inputs = document.querySelectorAll('#budget, #stockPrice, #shares, #dividendRate');
+
+    inputs.forEach(input => {
+      input.addEventListener('input', calculate);
+    });
+
+    function calculate() {
+      const budget = parseFloat(document.getElementById('budget').value);
+      const stockPrice = parseFloat(document.getElementById('stockPrice').value);
+      const shares = parseFloat(document.getElementById('shares').value);
+      const dividendRate = parseFloat(document.getElementById('dividendRate').value);
+
+      // 最大購入口数の計算
+      if (!isNaN(budget) && !isNaN(stockPrice) && stockPrice > 0) {
+        const maxShares = Math.floor(budget / stockPrice);
+        document.getElementById('maxShares').textContent = `購入可能な口数: ${maxShares} 口`;
+      } else {
+        document.getElementById('maxShares').textContent = '正しい値を入力してください。';
+      }
+
+      // 購入株価合計の計算
+      if (!isNaN(stockPrice) && !isNaN(shares)) {
+        const totalStockPrice = stockPrice * shares;
+        document.getElementById('totalStockPrice').textContent = `購入株価合計: ¥${totalStockPrice.toFixed(2)}`;
+      } else {
+        document.getElementById('totalStockPrice').textContent = '正しい値を入力してください。';
+      }
+
+      // 配当金額と株価の値下がり計算
+      if (!isNaN(stockPrice) && !isNaN(shares) && !isNaN(dividendRate)) {
+        const dividend = stockPrice * shares * (dividendRate / 100);
+        document.getElementById('result').textContent = `配当金額: ¥${dividend.toFixed(2)}`;
+
+        const offsetPrice = dividend / shares;
+        document.getElementById('offsetPrice').textContent = `¥${offsetPrice.toFixed(2)} までの下落は配当金が相殺してくれます`;
+      } else {
+        document.getElementById('result').textContent = '正しい値を入力してください。';
+        document.getElementById('offsetPrice').textContent = '';
+      }
+    }
+  </script>
+
+</body>
+</html>
