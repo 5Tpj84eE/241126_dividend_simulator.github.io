@@ -138,7 +138,8 @@
         document.getElementById('result').textContent = `配当金額: ¥${dividend.toFixed(2)}`;
 
         const offsetPrice = dividend / shares;
-        document.getElementById('offsetPrice').textContent = `¥${offsetPrice.toFixed(2)} までの下落は配当金が相殺してくれます`;
+        const adjustedStockPrice = stockPrice - offsetPrice;
+        document.getElementById('offsetPrice').textContent = `¥${offsetPrice.toFixed(2)} (¥${adjustedStockPrice.toFixed(2)}) までの下落は配当金が相殺してくれます`;
       } else {
         document.getElementById('result').textContent = '正しい値を入力してください。';
         document.getElementById('offsetPrice').textContent = '';
